@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let timeLeft = 60;
     let timer;
     let wordCount = {};
+    let totalTurns = 0; // control de rondas
+    let usedWords = new Set(); // Inicialización del conjunto de palabras usadas
 
     // Agregar jugador
     addPlayerBtn.addEventListener("click", () => {
@@ -39,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         currentPlayerIndex = 0;
+        totalTurns = 0; // reiniciar el contador de turnos al iniciar el juego
         startTurn();
     });
 
@@ -61,6 +64,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function endTurn() {
         clearInterval(timer);
+        totalTurns++;
+
+        // Finalizar el juego después de que pasen todos los turnos
+        if (totalTurns >= players.length) {
+            alert("El juego ha terminado");
+            return;
+        }
+
         currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
         startTurn();
     }
@@ -75,6 +86,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.key === "Enter" && wordInput.value.trim() !== "") {
             const word = wordInput.value.trim().toUpperCase();
             const player = players[currentPlayerIndex];
+            const currentLetter = letterDisplay.textContent; // Obtener la letra actual
+
+            // Validación de inicio de palabra con la letra correspondiente
+            if (!word.startsWith(currentLetter)) {
+                alert(`La palabra debe comenzar con la letra ${currentLetter}`);
+                wordInput.value = "";
+                return;
+            }
+
+            // Validación para evitar palabras repetidas
+            if (usedWords.has(word)) {
+                alert("Esta palabra ya ha sido utilizada. Intenta otra.");
+                wordInput.value = "";
+                return;
+            }
+
+            usedWords.add(word); // Agregar la palabra al conjunto de palabras usadas
 
             const li = document.createElement("li");
             li.textContent = `${player}: ${word}`;
